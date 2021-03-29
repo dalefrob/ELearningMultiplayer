@@ -1,0 +1,36 @@
+{
+  "categories": [
+    {
+      "catid":0,
+      "name":"uncategorized"
+    },
+    {
+      "catid":1,
+      "name":"random multi choice"
+    }
+  ],
+  "multiple_choice_questions": [
+    {
+      "qid":0,
+      "catid":1,
+      "question":"The question",
+      "correct_answer":"The answer",
+      "bogus_answers": [
+        "bogus 1",
+        "bogus 2",
+        "bogus 3"
+        ]
+    },
+    {
+      "qid":1,
+      "catid":1,
+      "question":"The second question",
+      "correct_answer":"The second answer",
+      "bogus_answers": [
+        "bogus 1",
+        "bogus 2",
+        "bogus 3"
+        ]
+    }
+  ]
+}

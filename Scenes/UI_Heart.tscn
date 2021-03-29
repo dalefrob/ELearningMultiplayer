@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="StreamTexture" id=1]
+load_path = "res://.import/heart_mini.png-e09714f14e0df6726f40fec2cd7127b7.stex"
+
+[node name="UI_Heart" type="TextureRect"]
+margin_right = 12.0
+margin_bottom = 14.0
+texture = SubResource( 1 )
+stretch_mode = 6
+__meta__ = {
+"_edit_use_anchors_": false
+}

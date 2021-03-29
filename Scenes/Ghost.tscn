@@ -1,0 +1,42 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://ghost.gd" type="Script" id=1]
+[ext_resource path="res://Hover.gd" type="Script" id=2]
+[ext_resource path="res://Assets/dark ghost.png" type="Texture" id=3]
+
+[sub_resource type="Curve" id=1]
+_data = [ Vector2( 0, 1 ), 0.0, -0.0810807, 0, 0, Vector2( 1, 0.009009 ), -2.70271, 0.0, 0, 0 ]
+
+[sub_resource type="CapsuleShape2D" id=2]
+radius = 6.0
+height = 6.0
+
+[node name="Ghost" type="Area2D" groups=[
+"danger",
+"enemies",
+"entities",
+]]
+self_modulate = Color( 1, 1, 1, 0.568627 )
+script = ExtResource( 1 )
+speed = 20.0
+
+[node name="Sprite" type="Sprite" parent="."]
+self_modulate = Color( 1, 1, 1, 0.513726 )
+texture = ExtResource( 3 )
+script = ExtResource( 2 )
+
+[node name="Particles2D" type="CPUParticles2D" parent="Sprite"]
+visible = false
+show_behind_parent = true
+position = Vector2( 0, 4 )
+emission_shape = 1
+emission_sphere_radius = 5.0
+spread = 180.0
+gravity = Vector2( 0, 20 )
+scale_amount = 2.0
+scale_amount_curve = SubResource( 1 )
+color = Color( 0.160784, 0.113725, 0.168627, 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource( 2 )
+[connection signal="body_entered" from="." to="." method="_on_Ghost_body_entered"]

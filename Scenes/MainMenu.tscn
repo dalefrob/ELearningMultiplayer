@@ -1,0 +1,157 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Scenes/MultiplayerMenuPanel.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/MainMenuPanel.gd" type="Script" id=2]
+[ext_resource path="res://Scenes/LobbyPanel.gd" type="Script" id=3]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MainMenuPanel" type="Panel" parent="."]
+margin_right = 136.0
+margin_bottom = 144.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="MainMenuPanel"]
+margin_left = 32.0
+margin_top = 8.0
+margin_right = 103.0
+margin_bottom = 22.0
+text = "Main Menu"
+
+[node name="SingleplayerButton" type="Button" parent="MainMenuPanel"]
+margin_left = 16.0
+margin_top = 32.0
+margin_right = 120.0
+margin_bottom = 52.0
+text = "Singleplayer"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MultiplayerButton" type="Button" parent="MainMenuPanel"]
+margin_left = 16.0
+margin_top = 56.0
+margin_right = 120.0
+margin_bottom = 76.0
+text = "Multiplayer"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MultiplayerMenuPanel" type="Panel" parent="."]
+margin_left = 144.0
+margin_right = 280.0
+margin_bottom = 144.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="MultiplayerMenuPanel"]
+margin_left = 32.0
+margin_top = 8.0
+margin_right = 103.0
+margin_bottom = 22.0
+text = "Multiplayer"
+
+[node name="NameEdit" type="TextEdit" parent="MultiplayerMenuPanel"]
+margin_left = 16.0
+margin_top = 24.0
+margin_right = 120.0
+margin_bottom = 48.0
+text = "Default Player"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CreateServerButton" type="Button" parent="MultiplayerMenuPanel"]
+margin_left = 16.0
+margin_top = 56.0
+margin_right = 120.0
+margin_bottom = 76.0
+text = "Create Server"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="JoinServerButton" type="Button" parent="MultiplayerMenuPanel"]
+margin_left = 16.0
+margin_top = 80.0
+margin_right = 120.0
+margin_bottom = 100.0
+text = "Join Server"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="IpAddressEdit" type="TextEdit" parent="MultiplayerMenuPanel"]
+margin_left = 16.0
+margin_top = 104.0
+margin_right = 120.0
+margin_bottom = 128.0
+text = "127.0.0.1"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LobbyPanel" type="Panel" parent="."]
+margin_left = 288.0
+margin_right = 480.0
+margin_bottom = 232.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="LobbyPanel"]
+margin_left = 32.0
+margin_top = 8.0
+margin_right = 160.0
+margin_bottom = 22.0
+text = "Lobby"
+align = 1
+
+[node name="ItemList" type="ItemList" parent="LobbyPanel"]
+margin_left = 16.0
+margin_top = 32.0
+margin_right = 176.0
+margin_bottom = 160.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LeaveLobby" type="Button" parent="LobbyPanel"]
+margin_left = 48.0
+margin_top = 168.0
+margin_right = 152.0
+margin_bottom = 188.0
+text = "Leave"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StartGameButton" type="Button" parent="LobbyPanel"]
+margin_left = 48.0
+margin_top = 200.0
+margin_right = 152.0
+margin_bottom = 220.0
+disabled = true
+text = "Start Game"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="pressed" from="MainMenuPanel/SingleplayerButton" to="MainMenuPanel" method="_on_SingleplayerButton_pressed"]
+[connection signal="pressed" from="MainMenuPanel/MultiplayerButton" to="MainMenuPanel" method="_on_MultiplayerButton_pressed"]
+[connection signal="server_created" from="MultiplayerMenuPanel" to="LobbyPanel" method="_on_MultiplayerMenuPanel_server_created"]
+[connection signal="pressed" from="MultiplayerMenuPanel/CreateServerButton" to="MultiplayerMenuPanel" method="_on_CreateServerButton_pressed"]
+[connection signal="pressed" from="MultiplayerMenuPanel/JoinServerButton" to="MultiplayerMenuPanel" method="_on_JoinServerButton_pressed"]
+[connection signal="pressed" from="LobbyPanel/LeaveLobby" to="LobbyPanel" method="_on_LeaveLobby_pressed"]
+[connection signal="pressed" from="LobbyPanel/StartGameButton" to="LobbyPanel" method="_on_StartGameButton_pressed"]

@@ -1,0 +1,55 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://collectable_answer.gd" type="Script" id=1]
+
+[sub_resource type="StreamTexture" id=1]
+load_path = "res://.import/tileset.png-a39e944f25b35d62f55d4f98a36e2b5e.stex"
+
+[sub_resource type="CircleShape2D" id=2]
+radius = 5.0
+
+[sub_resource type="DynamicFontData" id=3]
+font_path = "res://Assets/Retro Gaming.ttf"
+
+[sub_resource type="DynamicFont" id=4]
+size = 11
+extra_spacing_top = 10
+font_data = SubResource( 3 )
+
+[node name="CollectibleWord" type="Area2D" groups=[
+"answer",
+"collectible",
+"entities",
+]]
+self_modulate = Color( 0.164706, 0.137255, 0.137255, 1 )
+script = ExtResource( 1 )
+text = "motivate!"
+
+[node name="Sprite" type="Sprite" parent="."]
+position = Vector2( 0, 0.428192 )
+texture = SubResource( 1 )
+region_enabled = true
+region_rect = Rect2( 48, 32, 16, 16 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource( 2 )
+
+[node name="Label" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -11.9593
+margin_top = -29.5
+margin_right = 12.0407
+margin_bottom = -8.5
+grow_horizontal = 2
+grow_vertical = 2
+custom_fonts/font = SubResource( 4 )
+text = "hello!"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="body_entered" from="." to="." method="_on_CollectibleWord_body_entered"]
