@@ -71,6 +71,7 @@ remotesync func pre_configure_game():
 	my_player.set_name(str(selfPeerID))
 	my_player.set_network_master(selfPeerID) # Will be explained later
 	get_node("/root/Game/Players").add_child(my_player)
+	my_player.position = Vector2(64,64)
 
 	# Load other players
 	for p in peer_info:
@@ -79,6 +80,7 @@ remotesync func pre_configure_game():
 		player.set_network_master(p) # Will be explained later
 		player.set_tag(peer_info[p].name)
 		get_node("/root/Game/Players").add_child(player)
+		player.position = Vector2(64,64)
 
 	# Tell server (remember, server is always ID=1) that this peer is done pre-configuring.
 	# The server can call get_tree().get_rpc_sender_id() to find out who said they were done.

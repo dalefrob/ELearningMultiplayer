@@ -1,20 +1,18 @@
 [gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://collectable_answer.gd" type="Script" id=1]
+[ext_resource path="res://Assets/tileset.png" type="Texture" id=2]
 
-[sub_resource type="StreamTexture" id=1]
-load_path = "res://.import/tileset.png-a39e944f25b35d62f55d4f98a36e2b5e.stex"
-
-[sub_resource type="CircleShape2D" id=2]
+[sub_resource type="CircleShape2D" id=1]
 radius = 5.0
 
-[sub_resource type="DynamicFontData" id=3]
+[sub_resource type="DynamicFontData" id=2]
 font_path = "res://Assets/Retro Gaming.ttf"
 
-[sub_resource type="DynamicFont" id=4]
+[sub_resource type="DynamicFont" id=3]
 size = 11
 extra_spacing_top = 10
-font_data = SubResource( 3 )
+font_data = SubResource( 2 )
 
 [node name="CollectibleWord" type="Area2D" groups=[
 "answer",
@@ -27,12 +25,12 @@ text = "motivate!"
 
 [node name="Sprite" type="Sprite" parent="."]
 position = Vector2( 0, 0.428192 )
-texture = SubResource( 1 )
+texture = ExtResource( 2 )
 region_enabled = true
 region_rect = Rect2( 48, 32, 16, 16 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource( 2 )
+shape = SubResource( 1 )
 
 [node name="Label" type="Label" parent="."]
 anchor_left = 0.5
@@ -45,7 +43,7 @@ margin_right = 12.0407
 margin_bottom = -8.5
 grow_horizontal = 2
 grow_vertical = 2
-custom_fonts/font = SubResource( 4 )
+custom_fonts/font = SubResource( 3 )
 text = "hello!"
 align = 1
 valign = 1

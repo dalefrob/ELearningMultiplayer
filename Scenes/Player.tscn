@@ -1,15 +1,13 @@
 [gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://player.gd" type="Script" id=1]
+[ext_resource path="res://Assets/tileset.png" type="Texture" id=2]
 
-[sub_resource type="StreamTexture" id=1]
-load_path = "res://.import/tileset.png-a39e944f25b35d62f55d4f98a36e2b5e.stex"
-
-[sub_resource type="CapsuleShape2D" id=2]
+[sub_resource type="CapsuleShape2D" id=1]
 radius = 6.0
 height = 3.0
 
-[sub_resource type="Animation" id=3]
+[sub_resource type="Animation" id=2]
 resource_name = "die"
 tracks/0/type = "value"
 tracks/0/path = NodePath("Sprite:rotation_degrees")
@@ -27,18 +25,17 @@ tracks/0/keys = {
 [node name="Player" type="KinematicBody2D" groups=[
 "player",
 ]]
-position = Vector2( 218.323, 161.248 )
 z_index = 1
 script = ExtResource( 1 )
 hearts_container_path = NodePath("../Canvas/TopCont/HeartsContainer")
 
 [node name="Sprite" type="Sprite" parent="."]
-texture = SubResource( 1 )
+texture = ExtResource( 2 )
 region_enabled = true
 region_rect = Rect2( 48, 144, 16, 16 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource( 2 )
+shape = SubResource( 1 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-anims/die = SubResource( 3 )
+anims/die = SubResource( 2 )
