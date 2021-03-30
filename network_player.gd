@@ -39,11 +39,11 @@ func _ready():
 	# hearts_ui.hearts = life
 
 
-func _process(delta):
+func _process(_delta):
 	pass
 
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if !is_network_master():
 		return
 	
@@ -70,7 +70,7 @@ func _physics_process(delta):
 		else:
 			velocity.x = lerp(velocity.x, 0, 0.5)
 	# do the move
-	move_and_slide(velocity * speed, Vector2.UP)
+	var _result = move_and_slide(velocity * speed, Vector2.UP)
 	rpc_unreliable("sync_position", position)
 	
 	# check if we hit the ceiling

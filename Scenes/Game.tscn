@@ -2,7 +2,7 @@
 
 [ext_resource path="res://hearts_ui_controller.gd" type="Script" id=1]
 [ext_resource path="res://spike.gd" type="Script" id=2]
-[ext_resource path="res://game.gd" type="Script" id=3]
+[ext_resource path="res://multiplayer_game.gd" type="Script" id=3]
 [ext_resource path="res://question_manager.gd" type="Script" id=4]
 [ext_resource path="res://Assets/door.png" type="Texture" id=5]
 [ext_resource path="res://Scenes/HeartPickup.tscn" type="PackedScene" id=6]
@@ -265,6 +265,49 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="RoundOverPanel" type="Panel" parent="Canvas"]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -88.0
+margin_top = -80.0
+margin_right = 80.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ScoresLabel" type="Label" parent="Canvas/RoundOverPanel"]
+margin_right = 168.0
+margin_bottom = 20.0
+text = "Scores"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PlayerScores" type="ItemList" parent="Canvas/RoundOverPanel"]
+margin_left = 8.0
+margin_top = 20.0
+margin_right = 160.0
+margin_bottom = 96.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ReadyCountdown" type="Button" parent="Canvas/RoundOverPanel"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -20.0
+text = "Ready (15)"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="StartPanel" type="Panel" parent="Canvas"]
 anchor_left = 0.5
 anchor_top = 0.5
@@ -299,4 +342,5 @@ position = Vector2( 264, 248 )
 [connection signal="body_entered" from="MapObjects/Spike" to="MapObjects/Spike" method="_on_Spike_body_entered"]
 [connection signal="body_entered" from="MapObjects/Spike2" to="MapObjects/Spike2" method="_on_Spike_body_entered"]
 [connection signal="button_up" from="Canvas/GameOverPanel/TryAgainButton" to="." method="_on_TryAgainButton_button_up"]
+[connection signal="button_up" from="Canvas/RoundOverPanel/ReadyCountdown" to="." method="_on_TryAgainButton_button_up"]
 [connection signal="button_up" from="Canvas/StartPanel/StartButton" to="." method="_on_StartButton_button_up"]

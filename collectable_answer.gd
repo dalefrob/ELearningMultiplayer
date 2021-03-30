@@ -27,7 +27,7 @@ func _ready():
 	$Label.text = text
 	Globals.load_data()
 
-func _process(delta):
+func _process(_delta):
 	var y_offset = sin((OS.get_ticks_msec() + tick_offset) / 100.0)
 	position.y = original_y + y_offset
 	if active:

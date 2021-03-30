@@ -6,7 +6,9 @@ func _ready():
 
 
 func _on_SingleplayerButton_pressed():
-	get_tree().change_scene("res://Scenes/Game.tscn")
+	# Load world
+	var world = load("res://Scenes/Game.tscn").instance()
+	get_node("/root").add_child(world)
 
 
 func _on_MultiplayerButton_pressed():

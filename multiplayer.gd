@@ -81,11 +81,14 @@ remotesync func pre_configure_game():
 		player.set_tag(peer_info[p].name)
 		get_node("/root/Game/Players").add_child(player)
 		player.position = Vector2(64,64)
-
+	
 	# Tell server (remember, server is always ID=1) that this peer is done pre-configuring.
 	# The server can call get_tree().get_rpc_sender_id() to find out who said they were done.
 	if !get_tree().is_network_server():
 		rpc_id(1, "done_preconfiguring")
+	elif get_tree().is_network_server() && peer_info.size() == 0:
+		# if we're the server, and theres no one in the lobby - just start
+		rpc("post_configure_game")
 
 var players_done = []
 remote func done_preconfiguring():

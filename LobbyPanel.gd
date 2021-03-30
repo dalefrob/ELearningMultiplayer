@@ -2,7 +2,7 @@ extends Panel
 
 
 func _ready():
-	Multiplayer.connect("playerlist_updated", self, "_on_playerlist_updated")
+	var _result = Multiplayer.connect("playerlist_updated", self, "_on_playerlist_updated")
 
 func _on_playerlist_updated():
 	$ItemList.clear()
