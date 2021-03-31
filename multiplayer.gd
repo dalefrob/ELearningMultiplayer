@@ -4,9 +4,11 @@ var server_port = 6009
 #var server_ip = "127.0.0.1" # Comes from menu now
 var max_players = 8
 
+var world = null
 var local_info = { name = "Default Player", color = Color(1,1,1) }
 var peer_info = {}
 
+signal host_disconnected
 signal playerlist_updated
 
 func _ready():
@@ -31,12 +33,13 @@ func join_server(ip_address):
 	
 	network.connect("peer_connected", self, "_peer_connected")
 	network.connect("peer_disconnected", self, "_peer_disconnected")
+	network.connect("server_disconnected", self, "_server_disconnected")
 	
 	emit_signal("playerlist_updated")
 	OS.set_window_title("Client")
 	print("Joined Server.")
 
-# Called by both clients and the server
+# called by both clients and the server
 func _peer_connected(peer_id):
 	print("Peer " + str(peer_id) + " connected.")
 	# Client - send your details to everyone
@@ -44,9 +47,16 @@ func _peer_connected(peer_id):
 	if !get_tree().is_network_server():
 		pass
 
+# called by both clients and the server
 func _peer_disconnected(peer_id):
 	print("Peer " + str(peer_id) + " disconnected.")
 	peer_info.erase(peer_id)
+
+# called by clients when the server disconnects
+func _server_disconnected():
+	world.queue_free()
+	peer_info.clear()
+	emit_signal("host_disconnected")
 
 remote func register_player(sender_info):
 	var sender_id = get_tree().get_rpc_sender_id()
@@ -63,7 +73,7 @@ remotesync func pre_configure_game():
 	var selfPeerID = get_tree().get_network_unique_id()
 
 	# Load world
-	var world = load("res://Scenes/Game.tscn").instance()
+	world = load("res://Scenes/Game.tscn").instance()
 	get_node("/root").add_child(world)
 
 	# Load my player

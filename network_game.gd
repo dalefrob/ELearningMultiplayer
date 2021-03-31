@@ -1,12 +1,6 @@
 extends "game.gd"
 
-# Multiple Choice Quiz Platformer. 
-# collect the correct answer to the question at the top.
-# or collect the words that match the category.
-# if you collect the wrong answer, an unkillable ghost will start to follow you.
-# there are enemies on the screen for you to destroy too
-# game rewards player with powerups for answering correctly:
-# eg. movement options, weapons, new maps!
+# Multiplayer word collection game
 
 onready var roundover_panel = $Canvas/RoundOverPanel
 onready var map_objects = get_node("MapObjects")
@@ -21,7 +15,7 @@ func _ready():
 	#print(globals.data["categories"])
 
 func reset_game():
-	set_timeleft(5)
+	set_timeleft(10)
 	# destroy existing entities
 	var entities = get_tree().get_nodes_in_group("entities")
 	for e in entities:
@@ -36,7 +30,7 @@ func set_timeleft(amount):
 		rpc("end_round")
 	time_label.text = "Time Left: " + str(time_left)
 
-# Round end handling
+# END OF ROUND ----------------------------
 var round_end_scores = {}
 remotesync func end_round():
 	# stop all timers on each player
@@ -51,29 +45,36 @@ remote func communicate_score(sender_score):
 	round_end_scores[sender_name] = sender_score
 	if round_end_scores.size() == Multiplayer.peer_info.size():
 		# show scores
-		roundover_panel.show()
-		$Canvas/RoundOverPanel/PlayerScores.add_item(Multiplayer.local_info.name + " " + str(my_score))
-		for s in round_end_scores.values():
-			$Canvas/RoundOverPanel/PlayerScores.add_item(sender_name + " " + str(s))
+		show_scores()
 
-# set up the game
+func show_scores():
+	roundover_panel.show()
+	$Canvas/RoundOverPanel/PlayerScores.add_item(Multiplayer.local_info.name + " " + str(my_score))
+	for s in round_end_scores.keys():
+		$Canvas/RoundOverPanel/PlayerScores.add_item(s + " " + str(round_end_scores[s]))
+# -------------------------------------------
+
+# START OF GAME -----------------------------
 func preconfig_network_game():
 	rpc("start_network_game")
 
 # called from the server but run by all
 remotesync func start_network_game():
-	# TODO the server needs to handle the question data and collectibles 
-	#question_manager.get_next()
-	#question_text.bbcode_text = "[center]Which [shake rate=10 level=5][color=lime]verbs[/color][/shake] are in the past tense?"
+	# set up player events
+	
+	# start the timer on each player - only the server one matters though
 	$Timer.start()
-	spawn_answer("testamondo", Vector2(100,100))
+	spawn_answer("safe word", Vector2(100,100), true)
 
 # called from the server
-func spawn_answer(answer, pos):
+func spawn_answer(answer, pos, is_safe):
 	var new_answer = collectible_word_scene.instance()
 	new_answer.position = pos
 	new_answer.text = answer
+	new_answer.safe = is_safe
 	map_objects.add_child(new_answer)
+
+# -------------------------------------------
 
 func _on_player_died():
 	$Timer.stop()

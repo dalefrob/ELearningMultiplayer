@@ -17,7 +17,7 @@ onready var time_label = $Canvas/TopCont/TimeLabel
 onready var start_panel = $Canvas/StartPanel
 onready var gameover_panel = $Canvas/GameOverPanel
 
-var time_left := 5
+var time_left := 10
 var my_score := 0
 
 onready var player_scene = preload("res://Scenes/Player.tscn")

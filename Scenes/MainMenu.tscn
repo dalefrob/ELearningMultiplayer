@@ -197,6 +197,20 @@ text = "Start Game"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="AcceptDialog" type="AcceptDialog" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -74.0
+margin_top = -29.0
+margin_right = 74.0
+margin_bottom = 29.0
+dialog_text = "Server Disconnected"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="pressed" from="MainMenuPanel/SingleplayerButton" to="MainMenuPanel" method="_on_SingleplayerButton_pressed"]
 [connection signal="pressed" from="MainMenuPanel/MultiplayerButton" to="MainMenuPanel" method="_on_MultiplayerButton_pressed"]
 [connection signal="server_created" from="MultiplayerMenuPanel" to="LobbyPanel" method="_on_MultiplayerMenuPanel_server_created"]
