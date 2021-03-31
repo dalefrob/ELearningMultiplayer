@@ -48,7 +48,7 @@ func _process(_delta):
 #func on_click():
 #	print("Click")
 
-
+# this gets called for when any player enters this body
 func _on_CollectibleWord_body_entered(body):
 	if !active:
 		return
@@ -57,10 +57,16 @@ func _on_CollectibleWord_body_entered(body):
 		emit_signal("touched_answer", self)
 		# visual queue
 		$Sprite.visible = false
-		if !safe:
-			$Label.add_color_override("font_color", Color(1,0,0,1))
+		# show correctness locally only
+		if body.is_network_master():
+			if !safe:
+				$Label.add_color_override("font_color", Color(1,0,0,1))
+			else:
+				$Label.add_color_override("font_color", Color(0,1,0,1))
+			# delete after a sec
+			yield(get_tree().create_timer(1.0), "timeout")
+			queue_free()
 		else:
-			$Label.add_color_override("font_color", Color(0,1,0,1))
-		# delete after a sec
-		yield(get_tree().create_timer(1.0), "timeout")
-		queue_free()
+			# delete straight away
+			queue_free()
+		

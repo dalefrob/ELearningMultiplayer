@@ -27,8 +27,9 @@ export(Array, NodePath) var spawn_positions
 # ALTERNATIVE: var spawn_positions = get_tree().get_nodes_in_group ("spawn_position")
 var item_positions = {}
 
+var rng = RandomNumberGenerator.new()
+
 func _ready():
-	randomize()
 	# multiple_choice_qns = globals.data["multiple_choice_questions"]
 	var answers = get_tree().get_nodes_in_group("collectible")
 	for i in range(answers.size()):
@@ -38,18 +39,23 @@ func _ready():
 	for i in range(spawn_positions.size()):
 		var node = get_node(spawn_positions[i])
 		item_positions[node.position] = null
-	
-	
+
+remotesync func get_server_random_seed(server_seed):
+	print(str(server_seed))
+	# make sure this random seed is coming from the server
+	assert(get_tree().get_rpc_sender_id() == 1)
+	rng.set_seed(server_seed)
+
 func get_next():
+	# set the question text at the bottom
 	question_text.bbcode_text = test_question
-	# spawn a bunch of answers
 	# 1. delete existing answers
 	var existing_answers = get_tree().get_nodes_in_group ("answer")
 	for a in existing_answers:
 		a.queue_free()
 	# 2. get amount of spawn nodes and spawn an answer on each
 	for i in range(spawn_positions.size()):
-		spawn_answer()
+		rpc("spawn_answer")
 	
 	# check question amount
 	#if current_question_id < multiple_choice_qns.size():
@@ -57,7 +63,7 @@ func get_next():
 	#	question_text.text = multiple_choice_qns[current_question_id]["question"]
 
 # refactor to take in text and safeness
-func spawn_answer():
+remotesync func spawn_answer():
 	# get available position
 	for key in item_positions.keys():
 		if item_positions[key] == null:
@@ -67,10 +73,10 @@ func spawn_answer():
 			# choose an answer
 			var text_to_put = ""
 			if randf() > 0.4:
-				text_to_put = test_answer_pool[rand_range(0, test_answer_pool.size())]
+				text_to_put = test_answer_pool[rng.randi_range(0, test_answer_pool.size())]
 				new_answer.safe = true
 			else:
-				text_to_put = test_bogus_pool[rand_range(0, test_bogus_pool.size())]
+				text_to_put = test_bogus_pool[rng.randi_range(0, test_bogus_pool.size())]
 			new_answer.text = text_to_put
 			new_answer.connect("touched_answer", self, "_on_touched_answer")
 			new_answer.connect("expired", self, "_on_answer_expired")
@@ -80,8 +86,9 @@ func spawn_answer():
 
 # when an answer expires from the player not touching it
 func _on_answer_expired():
-	yield(get_tree().create_timer(3), "timeout")
-	spawn_answer()
+	if get_tree().is_network_server():
+		yield(get_tree().create_timer(3), "timeout")
+		rpc("spawn_answer")
 
 # ontouching an answer
 func _on_touched_answer(answer : CollectableAnswer):

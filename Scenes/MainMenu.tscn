@@ -49,7 +49,7 @@ __meta__ = {
 [node name="MultiplayerMenuPanel" type="Panel" parent="."]
 margin_left = 144.0
 margin_right = 280.0
-margin_bottom = 144.0
+margin_bottom = 184.0
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -72,11 +72,29 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="CreateServerButton" type="Button" parent="MultiplayerMenuPanel"]
+[node name="PlayerColorList" type="ItemList" parent="MultiplayerMenuPanel"]
 margin_left = 16.0
-margin_top = 56.0
+margin_top = 52.0
 margin_right = 120.0
 margin_bottom = 76.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="_color_template" type="ColorRect" parent="MultiplayerMenuPanel/PlayerColorList"]
+visible = false
+margin_right = 24.0
+margin_bottom = 24.0
+color = Color( 0.776471, 0.160784, 0.160784, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CreateServerButton" type="Button" parent="MultiplayerMenuPanel"]
+margin_left = 16.0
+margin_top = 96.0
+margin_right = 120.0
+margin_bottom = 116.0
 text = "Create Server"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -84,9 +102,9 @@ __meta__ = {
 
 [node name="JoinServerButton" type="Button" parent="MultiplayerMenuPanel"]
 margin_left = 16.0
-margin_top = 80.0
+margin_top = 120.0
 margin_right = 120.0
-margin_bottom = 100.0
+margin_bottom = 140.0
 text = "Join Server"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -94,9 +112,9 @@ __meta__ = {
 
 [node name="IpAddressEdit" type="TextEdit" parent="MultiplayerMenuPanel"]
 margin_left = 16.0
-margin_top = 104.0
+margin_top = 144.0
 margin_right = 120.0
-margin_bottom = 128.0
+margin_bottom = 168.0
 text = "127.0.0.1"
 __meta__ = {
 "_edit_use_anchors_": false

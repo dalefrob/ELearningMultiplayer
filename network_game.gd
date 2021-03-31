@@ -9,6 +9,11 @@ extends "game.gd"
 # eg. movement options, weapons, new maps!
 
 onready var roundover_panel = $Canvas/RoundOverPanel
+onready var map_objects = get_node("MapObjects")
+onready var collectible_word_scene = preload("res://Scenes/CollectibleWord.tscn")
+
+# generate a random seed for the game
+var rng = RandomNumberGenerator.new()
 
 func _ready():
 	if !get_tree().is_network_server():
@@ -51,12 +56,24 @@ remote func communicate_score(sender_score):
 		for s in round_end_scores.values():
 			$Canvas/RoundOverPanel/PlayerScores.add_item(sender_name + " " + str(s))
 
-# called by the server
+# set up the game
+func preconfig_network_game():
+	rpc("start_network_game")
+
+# called from the server but run by all
 remotesync func start_network_game():
 	# TODO the server needs to handle the question data and collectibles 
-	question_manager.get_next()
+	#question_manager.get_next()
 	#question_text.bbcode_text = "[center]Which [shake rate=10 level=5][color=lime]verbs[/color][/shake] are in the past tense?"
 	$Timer.start()
+	spawn_answer("testamondo", Vector2(100,100))
+
+# called from the server
+func spawn_answer(answer, pos):
+	var new_answer = collectible_word_scene.instance()
+	new_answer.position = pos
+	new_answer.text = answer
+	map_objects.add_child(new_answer)
 
 func _on_player_died():
 	$Timer.stop()
@@ -65,9 +82,8 @@ func _on_player_died():
 
 
 func add_score(amount):
-	if is_network_master():
-		my_score += amount
-		score_label.text = "Score: " + str(my_score)
+	my_score += amount
+	score_label.text = "Score: " + str(my_score)
 
 
 func _on_Timer_timeout():
@@ -77,7 +93,7 @@ func _on_Timer_timeout():
 func _on_StartButton_button_up():
 	if get_tree().is_network_server():
 		start_panel.hide()
-		rpc("start_network_game")
+		preconfig_network_game()
 
 
 func _on_TryAgainButton_button_up():
