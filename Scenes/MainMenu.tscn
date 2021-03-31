@@ -72,20 +72,51 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="PlayerColorList" type="ItemList" parent="MultiplayerMenuPanel"]
+[node name="PlayerColors" type="GridContainer" parent="MultiplayerMenuPanel"]
 margin_left = 16.0
 margin_top = 52.0
 margin_right = 120.0
 margin_bottom = 76.0
+columns = 4
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="_color_template" type="ColorRect" parent="MultiplayerMenuPanel/PlayerColorList"]
-visible = false
-margin_right = 24.0
-margin_bottom = 24.0
+[node name="Red" type="ColorRect" parent="MultiplayerMenuPanel/PlayerColors"]
+margin_right = 20.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 20, 20 )
 color = Color( 0.776471, 0.160784, 0.160784, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Green" type="ColorRect" parent="MultiplayerMenuPanel/PlayerColors"]
+margin_left = 24.0
+margin_right = 44.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 20, 20 )
+color = Color( 0.176471, 0.596078, 0.0745098, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Blue" type="ColorRect" parent="MultiplayerMenuPanel/PlayerColors"]
+margin_left = 48.0
+margin_right = 68.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 20, 20 )
+color = Color( 0, 0.439216, 1, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Yellow" type="ColorRect" parent="MultiplayerMenuPanel/PlayerColors"]
+margin_left = 72.0
+margin_right = 92.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 20, 20 )
+color = Color( 1, 0.701961, 0, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
