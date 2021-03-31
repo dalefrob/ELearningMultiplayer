@@ -18,7 +18,7 @@ onready var start_panel = $Canvas/StartPanel
 onready var gameover_panel = $Canvas/GameOverPanel
 
 var time_left := 5
-var score := 0
+var my_score := 0
 
 onready var player_scene = preload("res://Scenes/Player.tscn")
 
@@ -54,13 +54,13 @@ func start_game():
 
 func _on_player_died():
 	$Timer.stop()
-	$Canvas/GameOverPanel/ScoreLabel.text = "Your score was: " + str(score)
+	$Canvas/GameOverPanel/ScoreLabel.text = "Your score was: " + str(my_score)
 	gameover_panel.show()
 
 
 func add_score(amount):
-	score += amount
-	score_label.text = "Score: " + str(score)
+	my_score += amount
+	score_label.text = "Score: " + str(my_score)
 
 
 func _on_Timer_timeout():
