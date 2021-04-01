@@ -2,7 +2,7 @@ extends "game.gd"
 
 # Multiplayer word collection game
 
-onready var roundover_panel = $Canvas/RoundOverPanel
+onready var roundover_panel = $GameUI/RoundOverPanel
 onready var map_objects = get_node("MapObjects")
 onready var collectible_word_scene = preload("res://Scenes/CollectibleWord.tscn")
 
@@ -121,3 +121,12 @@ func _on_TryAgainButton_button_up():
 	gameover_panel.hide()
 	reset_game()
 	start_panel.show()
+
+
+func _leave_game():
+	if get_tree().network_peer:
+		get_tree().set_network_peer(null)
+	get_node("/root/Main").reset_menus()
+	print("Left the game.")
+	# delete this node AFTER setting up sibling node
+	queue_free()

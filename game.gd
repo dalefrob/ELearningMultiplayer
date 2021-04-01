@@ -10,12 +10,14 @@ extends Node2D
 
 onready var question_manager = $QuestionManager
 
-onready var question_text = $Canvas/BottomCont/ColorRect/QuestionText
-onready var score_label = $Canvas/TopCont/ScoreLabel
-onready var time_label = $Canvas/TopCont/TimeLabel
+onready var question_text = $GameUI/BottomCont/ColorRect/QuestionText
+onready var score_label = $GameUI/TopCont/ScoreLabel
+onready var time_label = $GameUI/TopCont/TimeLabel
 
-onready var start_panel = $Canvas/StartPanel
-onready var gameover_panel = $Canvas/GameOverPanel
+onready var start_panel = $GameUI/StartPanel
+onready var gameover_panel = $GameUI/GameOverPanel
+
+signal on_leave_game
 
 var time_left := 10
 var my_score := 0
@@ -54,7 +56,7 @@ func start_game():
 
 func _on_player_died():
 	$Timer.stop()
-	$Canvas/GameOverPanel/ScoreLabel.text = "Your score was: " + str(my_score)
+	$GameUI/GameOverPanel/ScoreLabel.text = "Your score was: " + str(my_score)
 	gameover_panel.show()
 
 
@@ -76,3 +78,6 @@ func _on_TryAgainButton_button_up():
 	gameover_panel.hide()
 	reset_game()
 	start_panel.show()
+
+func _leave_game():
+	pass
