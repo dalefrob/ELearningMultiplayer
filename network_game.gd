@@ -56,7 +56,27 @@ func show_scores():
 
 # START OF GAME -----------------------------
 func preconfig_network_game():
+	rpc("spawn_players")
 	rpc("start_network_game")
+
+remotesync func spawn_players():
+	var selfPeerID = get_tree().get_network_unique_id()
+	# Load my player
+	var my_player = preload("res://Scenes/NetworkPlayer.tscn").instance()
+	my_player.set_name(str(selfPeerID))
+	my_player.set_network_master(selfPeerID) # Will be explained later
+	get_node("/root/Game/Players").add_child(my_player)
+	my_player.position = Vector2(64,64)
+
+	# Load other players
+	for p in Multiplayer.peer_info:
+		var player = preload("res://Scenes/NetworkPlayer.tscn").instance()
+		player.set_name(str(p))
+		player.set_network_master(p) # Will be explained later
+		player.set_tag(Multiplayer.peer_info[p].name)
+		get_node("/root/Game/Players").add_child(player)
+		player.position = Vector2(64,64)
+
 
 # called from the server but run by all
 remotesync func start_network_game():

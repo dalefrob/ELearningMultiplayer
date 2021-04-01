@@ -65,56 +65,45 @@ remote func register_player(sender_info):
 	print("Registered:  " + sender_info.name + " - " + str(sender_id) + ".")
 	emit_signal("playerlist_updated")
 
+# called from the lobby
 func cue_start_game():
 	rpc("pre_configure_game")
 
-remotesync func pre_configure_game():
-	get_tree().set_pause(true) # Pre-pause
-	var selfPeerID = get_tree().get_network_unique_id()
+# TODO -- Move this to the network_game file
 
+# this is called on each client and also the server
+remotesync func pre_configure_game():
+	# Pre-pause
+	get_tree().set_pause(true) 
 	# Load world
 	world = load("res://Scenes/Game.tscn").instance()
 	get_node("/root").add_child(world)
 
-	# Load my player
-	var my_player = preload("res://Scenes/NetworkPlayer.tscn").instance()
-	my_player.set_name(str(selfPeerID))
-	my_player.set_network_master(selfPeerID) # Will be explained later
-	get_node("/root/Game/Players").add_child(my_player)
-	my_player.position = Vector2(64,64)
-
-	# Load other players
-	for p in peer_info:
-		var player = preload("res://Scenes/NetworkPlayer.tscn").instance()
-		player.set_name(str(p))
-		player.set_network_master(p) # Will be explained later
-		player.set_tag(peer_info[p].name)
-		get_node("/root/Game/Players").add_child(player)
-		player.position = Vector2(64,64)
-	
 	# Tell server (remember, server is always ID=1) that this peer is done pre-configuring.
 	# The server can call get_tree().get_rpc_sender_id() to find out who said they were done.
 	if !get_tree().is_network_server():
 		rpc_id(1, "done_preconfiguring")
+	# SINGLE PLAYER if we're the server, and theres no one in the lobby - just start
 	elif get_tree().is_network_server() && peer_info.size() == 0:
-		# if we're the server, and theres no one in the lobby - just start
 		rpc("post_configure_game")
 
+# this will be called multiple times as clients configure their game
 var players_done = []
 remote func done_preconfiguring():
 	var who = get_tree().get_rpc_sender_id()
 	# Here are some checks you can do, for example
-	assert(get_tree().is_network_server())
-	assert(who in peer_info) # Exists
-	assert(not who in players_done) # Was not added yet
-
+	assert(get_tree().is_network_server()) # only the server calls this function
+	assert(who in peer_info) # the sender exists in the peer_info
+	assert(not who in players_done) # the sender isn't in the done list
+	
 	players_done.append(who)
-
+	
+	# once all the clients have configured, we (server) move on with the game
 	if players_done.size() == peer_info.size():
 		rpc("post_configure_game")
 
 remotesync func post_configure_game():
 	# Only the server is allowed to tell a client to unpause
 	if get_tree().get_rpc_sender_id() == 1:
+		# start game!
 		get_tree().set_pause(false)
-		# Game starts now!
