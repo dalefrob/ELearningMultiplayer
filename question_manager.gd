@@ -40,12 +40,6 @@ func _ready():
 		var node = get_node(spawn_positions[i])
 		item_positions[node.position] = null
 
-remotesync func get_server_random_seed(server_seed):
-	print(str(server_seed))
-	# make sure this random seed is coming from the server
-	assert(get_tree().get_rpc_sender_id() == 1)
-	rng.set_seed(server_seed)
-
 func get_next():
 	# set the question text at the bottom
 	question_text.bbcode_text = test_question

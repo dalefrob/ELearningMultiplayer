@@ -8,11 +8,15 @@ onready var collectible_word_scene = preload("res://Scenes/CollectibleWord.tscn"
 
 # generate a random seed for the game
 var rng = RandomNumberGenerator.new()
+# spawn positions for collectibles
+var item_spawn_positions = []
 
 func _ready():
 	if !get_tree().is_network_server():
 		start_panel.hide()
 	#print(globals.data["categories"])
+	for p in $SpawnPositions.get_children():
+		item_spawn_positions.append(p)
 
 func reset_game():
 	set_timeleft(10)
@@ -84,10 +88,16 @@ remotesync func start_network_game():
 	
 	# start the timer on each player - only the server one matters though
 	$Timer.start()
-	spawn_answer("safe word", Vector2(100,100), true)
+	if get_tree().is_network_server():
+		ask_question()
+
+master func ask_question():
+	var pos = item_spawn_positions[rand_range(0, item_spawn_positions.size())].position
+	rpc("spawn_answer", "safe word", pos, true)
+
 
 # called from the server
-func spawn_answer(answer, pos, is_safe):
+remotesync func spawn_answer(answer, pos, is_safe):
 	var new_answer = collectible_word_scene.instance()
 	new_answer.position = pos
 	new_answer.text = answer
@@ -98,7 +108,7 @@ func spawn_answer(answer, pos, is_safe):
 
 func _on_player_died():
 	$Timer.stop()
-	$Canvas/GameOverPanel/ScoreLabel.text = "Your score was: " + str(my_score)
+	$GameUI/GameOverPanel/ScoreLabel.text = "Your score was: " + str(my_score)
 	gameover_panel.show()
 
 
