@@ -35,35 +35,35 @@ script = ExtResource( 3 )
 [node name="QuestionManager" type="Node" parent="."]
 script = ExtResource( 4 )
 question_text_path = NodePath("../GameUI/BottomCont/ColorRect/QuestionText")
-spawn_positions = [ NodePath("../SpawnPositions/Position2D"), NodePath("../SpawnPositions/Position2D2"), NodePath("../SpawnPositions/Position2D3"), NodePath("../SpawnPositions/Position2D4"), NodePath("../SpawnPositions/Position2D5") ]
+spawn_positions = [ NodePath("../SpawnPositions/ItemSpawnPoint"), NodePath("../SpawnPositions/ItemSpawnPoint2"), NodePath("../SpawnPositions/ItemSpawnPoint3"), NodePath("../SpawnPositions/ItemSpawnPoint4"), NodePath("../SpawnPositions/ItemSpawnPoint5") ]
 
 [node name="SpawnPositions" type="Node" parent="."]
 
-[node name="Position2D" type="Position2D" parent="SpawnPositions" groups=[
+[node name="ItemSpawnPoint" type="Position2D" parent="SpawnPositions" groups=[
 "spawn_position",
 ]]
 position = Vector2( 88, 104 )
 script = ExtResource( 9 )
 
-[node name="Position2D2" type="Position2D" parent="SpawnPositions" groups=[
+[node name="ItemSpawnPoint2" type="Position2D" parent="SpawnPositions" groups=[
 "spawn_position",
 ]]
 position = Vector2( 184, 248 )
 script = ExtResource( 9 )
 
-[node name="Position2D3" type="Position2D" parent="SpawnPositions" groups=[
+[node name="ItemSpawnPoint3" type="Position2D" parent="SpawnPositions" groups=[
 "spawn_position",
 ]]
 position = Vector2( 376, 136 )
 script = ExtResource( 9 )
 
-[node name="Position2D4" type="Position2D" parent="SpawnPositions" groups=[
+[node name="ItemSpawnPoint4" type="Position2D" parent="SpawnPositions" groups=[
 "spawn_position",
 ]]
 position = Vector2( 264, 72 )
 script = ExtResource( 9 )
 
-[node name="Position2D5" type="Position2D" parent="SpawnPositions" groups=[
+[node name="ItemSpawnPoint5" type="Position2D" parent="SpawnPositions" groups=[
 "spawn_position",
 ]]
 position = Vector2( 440, 56 )

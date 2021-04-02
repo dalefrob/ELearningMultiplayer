@@ -1,5 +1,8 @@
 extends Position2D
 
+# a spawn point for an item.
+# it adds the item as a child of this node.
+
 class_name ItemSpawnPoint
 
 func is_item_here():
@@ -7,7 +10,7 @@ func is_item_here():
 
 func get_item():
 	if !is_item_here():
-		return false
+		return null
 	return get_child(0)
 
 func set_item(item_node):
@@ -16,6 +19,3 @@ func set_item(item_node):
 		get_child(0).queue_free()
 	add_child(item_node)
 	(item_node as Node2D).position = Vector2.ZERO
-
-func _ready():
-	pass

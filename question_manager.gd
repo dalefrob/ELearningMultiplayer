@@ -1,5 +1,7 @@
 extends Node
 
+class_name QuestionManager
+
 # main screen 
 onready var main_screen = get_tree().get_root().get_node("Game") 
 onready var map_objects = main_screen.get_node("MapObjects")
@@ -15,8 +17,17 @@ var current_question_id = -1 #ensure we start asking from position 0
 
 # test question pool
 var test_question = "[center]Which words are verbs?[/center]"
-var test_answer_pool = ["run", "scare", "threw", "fished", "was", "driving"]
+var test_answer_pool = ["coded", "scare", "threw", "fished", "was", "driving"]
 var test_bogus_pool = ["scary", "happiness", "ghost", "you", "best"]
+
+var current_question_data = {
+	"question_bbtext": test_question,
+	"correct_answers": test_answer_pool,
+	"bogus_answers": test_bogus_pool
+}
+
+func get_current_question_data():
+	return current_question_data
 
 # question text node
 export var question_text_path : NodePath
@@ -39,6 +50,12 @@ func _ready():
 	for i in range(spawn_positions.size()):
 		var node = get_node(spawn_positions[i])
 		item_positions[node.position] = null
+
+func get_current_question():
+	return test_question
+
+func get_current_answers():
+	return test_answer_pool
 
 func get_next():
 	# set the question text at the bottom

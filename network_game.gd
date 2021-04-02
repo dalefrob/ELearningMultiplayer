@@ -8,15 +8,18 @@ onready var collectible_word_scene = preload("res://Scenes/CollectibleWord.tscn"
 
 # generate a random seed for the game
 var rng = RandomNumberGenerator.new()
-# spawn positions for collectibles
+
 var item_spawn_positions = []
+# inside the array is a tuple 
+# { spawn_node = 'node obj', occupied = bool }
 
 func _ready():
 	if !get_tree().is_network_server():
 		start_panel.hide()
 	#print(globals.data["categories"])
 	for p in $SpawnPositions.get_children():
-		item_spawn_positions.append(p)
+		var dic = { "spawn_node": p, "occupied": false }
+		item_spawn_positions.append(dic)
 
 func reset_game():
 	set_timeleft(10)
@@ -92,11 +95,36 @@ remotesync func start_network_game():
 		ask_question()
 
 master func ask_question():
-	var pos = item_spawn_positions[rand_range(0, item_spawn_positions.size())].position
-	rpc("spawn_answer", "safe word", pos, true)
+	# get the question for the question manager
+	var q_data_dictionary = question_manager.get_current_question_data()
+	question_text.bbcode_text = q_data_dictionary["question_bbtext"]
+	# get the answers from the question manager
+	var answers = q_data_dictionary["correct_answers"] as Array
+	var bogus = q_data_dictionary["bogus_answers"]
+	# randomize answer order 
+	# this is done on server, so the clients should reflect this randomization
+	answers.shuffle()
+	
+	for a in answers:
+		# find an open spawn point
+		var pos = null
+		for sp_tuple in item_spawn_positions:
+			if sp_tuple["occupied"] == false:
+				# we found an open position, so prepare it and break the loop
+				# the server chooses a position
+				pos = sp_tuple["spawn_node"].position
+				sp_tuple["occupied"] = true
+				break
+		if pos:
+			# spawn a collectible at the same spawn point for each player
+			rpc("spawn_answer", a, pos, true)
+		else:
+			# we didn't get an open position, what to do here??
+			print("Can't spawn '" + a + "', no spawn points left./n")
+			pass
 
 
-# called from the server
+# called from the server, but runs on every machine because of remotesync
 remotesync func spawn_answer(answer, pos, is_safe):
 	var new_answer = collectible_word_scene.instance()
 	new_answer.position = pos

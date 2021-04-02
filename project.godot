@@ -38,6 +38,11 @@ _global_script_classes=[ {
 "class": "Player",
 "language": "GDScript",
 "path": "res://player.gd"
+}, {
+"base": "Node",
+"class": "QuestionManager",
+"language": "GDScript",
+"path": "res://question_manager.gd"
 } ]
 _global_script_class_icons={
 "CollectableAnswer": "",
@@ -45,7 +50,8 @@ _global_script_class_icons={
 "HeartPickup": "",
 "ItemSpawnPoint": "",
 "Network_Player": "",
-"Player": ""
+"Player": "",
+"QuestionManager": ""
 }
 
 [application]

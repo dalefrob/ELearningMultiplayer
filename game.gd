@@ -8,7 +8,7 @@ extends Node2D
 # game rewards player with powerups for answering correctly:
 # eg. movement options, weapons, new maps!
 
-onready var question_manager = $QuestionManager
+onready var question_manager = $QuestionManager as QuestionManager
 
 onready var question_text = $GameUI/BottomCont/ColorRect/QuestionText
 onready var score_label = $GameUI/TopCont/ScoreLabel
