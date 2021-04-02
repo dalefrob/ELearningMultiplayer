@@ -107,22 +107,28 @@ master func ask_question():
 	
 	for a in answers:
 		# find an open spawn point
-		var pos = null
-		for sp_tuple in item_spawn_positions:
-			if sp_tuple["occupied"] == false:
-				# we found an open position, so prepare it and break the loop
-				# the server chooses a position
-				pos = sp_tuple["spawn_node"].position
-				sp_tuple["occupied"] = true
-				break
-		if pos:
+		var spawn_node = find_open_spawnpoint()
+		if spawn_node:
 			# spawn a collectible at the same spawn point for each player
-			rpc("spawn_answer", a, pos, true)
+			rpc("spawn_answer", a, spawn_node.position, true)
 		else:
 			# we didn't get an open position, what to do here??
 			print("Can't spawn '" + a + "', no spawn points left./n")
 			pass
 
+# finds an open spawnpoint node and returns it
+func find_open_spawnpoint() -> Node:
+	# shuffle so that the nodes are searched in a random order
+	item_spawn_positions.shuffle() # --- MAKE SURE THIS DOESNT BREAK ANYTHING
+	# iterate values in dictionary until an unoccupied node comes up
+	for sp_tuple in item_spawn_positions:
+		if sp_tuple["occupied"] == false:
+			# we found an open position, so prepare it and break the loop
+			# the server chooses a position
+			var spawn_node = sp_tuple["spawn_node"]
+			sp_tuple["occupied"] = true
+			return spawn_node
+	return null
 
 # called from the server, but runs on every machine because of remotesync
 remotesync func spawn_answer(answer, pos, is_safe):
@@ -130,7 +136,17 @@ remotesync func spawn_answer(answer, pos, is_safe):
 	new_answer.position = pos
 	new_answer.text = answer
 	new_answer.safe = is_safe
+	new_answer.connect("expired", self, "_on_answer_expired", answer)
 	map_objects.add_child(new_answer)
+
+# when an answer expires from the player not touching it
+func _on_answer_expired(answer_text):
+	if get_tree().is_network_server():
+		yield(get_tree().create_timer(3), "timeout")
+		print("Server trying to spawn a new answer after timeout.")
+		var spawn_node = find_open_spawnpoint()
+		rpc("spawn_answer", answer_text, spawn_node.position, true)
+		
 
 # -------------------------------------------
 
