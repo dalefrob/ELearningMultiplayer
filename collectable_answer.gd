@@ -35,7 +35,7 @@ func _process(_delta):
 		alpha -= 0.001
 		if alpha <= 0:
 			active = false
-			emit_signal("expired")
+			emit_signal("expired", text)
 			queue_free()
 
 # ---- Click Event Code ---- #

@@ -136,12 +136,14 @@ remotesync func spawn_answer(answer, pos, is_safe):
 	new_answer.position = pos
 	new_answer.text = answer
 	new_answer.safe = is_safe
-	new_answer.connect("expired", self, "_on_answer_expired", answer)
+	new_answer.connect("expired", self, "_on_answer_expired")
 	map_objects.add_child(new_answer)
 
 # when an answer expires from the player not touching it
 func _on_answer_expired(answer_text):
 	if get_tree().is_network_server():
+		# free the spawn point that answer is associated to -- TODO
+		
 		yield(get_tree().create_timer(3), "timeout")
 		print("Server trying to spawn a new answer after timeout.")
 		var spawn_node = find_open_spawnpoint()
