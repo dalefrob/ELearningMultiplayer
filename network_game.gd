@@ -9,20 +9,21 @@ onready var collectible_word_scene = preload("res://Scenes/CollectibleWord.tscn"
 # generate a random seed for the game
 var rng = RandomNumberGenerator.new()
 
-var item_spawn_positions = []
+var item_spawn_positions = {}
 # inside the array is a tuple 
-# { spawn_node = 'node obj', occupied = bool }
+# [0] { spawn_node = 'node obj', occupied = bool }
 
 func _ready():
 	if !get_tree().is_network_server():
 		start_panel.hide()
 	#print(globals.data["categories"])
+	var i = 0
 	for p in $SpawnPositions.get_children():
-		var dic = { "spawn_node": p, "occupied": false }
-		item_spawn_positions.append(dic)
+		item_spawn_positions[i] = p as ItemSpawnPoint
+		i += 1
 
 func reset_game():
-	set_timeleft(10)
+	set_timeleft(60)
 	# destroy existing entities
 	var entities = get_tree().get_nodes_in_group("entities")
 	for e in entities:
@@ -107,48 +108,72 @@ master func ask_question():
 	
 	for a in answers:
 		# find an open spawn point
-		var spawn_node = find_open_spawnpoint()
-		if spawn_node:
+		var ips_index = find_open_spawnpoint_index()
+		if ips_index > -1:
 			# spawn a collectible at the same spawn point for each player
-			rpc("spawn_answer", a, spawn_node.position, true)
+			rpc("spawn_answer", a, ips_index, true)
 		else:
 			# we didn't get an open position, what to do here??
 			print("Can't spawn '" + a + "', no spawn points left./n")
 			pass
 
 # finds an open spawnpoint node and returns it
-func find_open_spawnpoint() -> Node:
-	# shuffle so that the nodes are searched in a random order
-	item_spawn_positions.shuffle() # --- MAKE SURE THIS DOESNT BREAK ANYTHING
+func find_open_spawnpoint_index() -> int:
+	for index in item_spawn_positions.keys():
+		if !item_spawn_positions[index].has_item():
+			return index
+	return -1
 	# iterate values in dictionary until an unoccupied node comes up
-	for sp_tuple in item_spawn_positions:
-		if sp_tuple["occupied"] == false:
-			# we found an open position, so prepare it and break the loop
-			# the server chooses a position
-			var spawn_node = sp_tuple["spawn_node"]
-			sp_tuple["occupied"] = true
-			return spawn_node
-	return null
+#	for sp_tuple in item_spawn_positions:
+#		if sp_tuple["occupied"] == false:
+#			# we found an open position, so prepare it and break the loop
+#			# the server chooses a position
+#			var spawn_node = sp_tuple["spawn_node"]
+#			sp_tuple["occupied"] = true
+#			return spawn_node
+#	return null
+
+master func pre_spawn_answer():
+	var ips_index = find_open_spawnpoint_index()
+	if ips_index > -1:
+		# spawn a collectible at the same spawn point for each player
+		rpc("spawn_answer", "test", ips_index, true)
 
 # called from the server, but runs on every machine because of remotesync
-remotesync func spawn_answer(answer, pos, is_safe):
+remotesync func spawn_answer(answer : String, ips_index : int, is_safe : bool):
 	var new_answer = collectible_word_scene.instance()
-	new_answer.position = pos
 	new_answer.text = answer
 	new_answer.safe = is_safe
 	new_answer.connect("expired", self, "_on_answer_expired")
-	map_objects.add_child(new_answer)
+	new_answer.connect("touched_answer", self, "_on_touched_answer")
+	# the spawn node determines position
+	item_spawn_positions[ips_index].set_item(new_answer)
 
 # when an answer expires from the player not touching it
-func _on_answer_expired(answer_text):
+func _on_answer_expired(calling_answer_item):
+	# only remake the answer if it was safe
+	var was_safe = calling_answer_item.safe
+	var expired_text = calling_answer_item.text
+	# delete the item
+	calling_answer_item.queue_free()
 	if get_tree().is_network_server():
-		# free the spawn point that answer is associated to -- TODO
-		
-		yield(get_tree().create_timer(3), "timeout")
-		print("Server trying to spawn a new answer after timeout.")
-		var spawn_node = find_open_spawnpoint()
-		rpc("spawn_answer", answer_text, spawn_node.position, true)
-		
+		# wait a bit before respawning
+		yield(get_tree().create_timer(rand_range(1,3)), "timeout")
+		var ips_index = find_open_spawnpoint_index()
+		if ips_index > -1 && was_safe:
+			rpc("spawn_answer", expired_text, ips_index, true)
+
+
+func _on_touched_answer(calling_answer_item : CollectableAnswer, toucher):
+	if calling_answer_item.safe:
+		add_score(100)
+	else:
+		add_score(-50)
+	# wait a bit
+	yield(get_tree().create_timer(rand_range(1,3)), "timeout")
+	calling_answer_item.queue_free()
+	# ask the server to prepare another answer to spawn
+	rpc_id(1, "pre_spawn_answer")
 
 # -------------------------------------------
 

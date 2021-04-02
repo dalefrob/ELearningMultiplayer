@@ -27,6 +27,9 @@ margin_top = 8.0
 margin_right = 103.0
 margin_bottom = 22.0
 text = "Main Menu"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="SingleplayerButton" type="Button" parent="MainMenuPanel"]
 margin_left = 16.0
@@ -63,6 +66,9 @@ margin_top = 8.0
 margin_right = 103.0
 margin_bottom = 22.0
 text = "Multiplayer"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="NameEdit" type="TextEdit" parent="MultiplayerMenuPanel"]
 margin_left = 16.0
@@ -169,6 +175,9 @@ margin_right = 160.0
 margin_bottom = 22.0
 text = "Lobby"
 align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="ItemList" type="ItemList" parent="LobbyPanel"]
 margin_left = 16.0

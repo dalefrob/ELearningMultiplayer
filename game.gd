@@ -19,7 +19,7 @@ onready var gameover_panel = $GameUI/GameOverPanel
 
 signal on_leave_game
 
-var time_left := 10
+var time_left := 60
 var my_score := 0
 
 onready var player_scene = preload("res://Scenes/Player.tscn")

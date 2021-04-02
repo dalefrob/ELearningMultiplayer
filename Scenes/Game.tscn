@@ -34,15 +34,13 @@ script = ExtResource( 3 )
 
 [node name="QuestionManager" type="Node" parent="."]
 script = ExtResource( 4 )
-question_text_path = NodePath("../GameUI/BottomCont/ColorRect/QuestionText")
-spawn_positions = [ NodePath("../SpawnPositions/ItemSpawnPoint"), NodePath("../SpawnPositions/ItemSpawnPoint2"), NodePath("../SpawnPositions/ItemSpawnPoint3"), NodePath("../SpawnPositions/ItemSpawnPoint4"), NodePath("../SpawnPositions/ItemSpawnPoint5") ]
 
 [node name="SpawnPositions" type="Node" parent="."]
 
 [node name="ItemSpawnPoint" type="Position2D" parent="SpawnPositions" groups=[
 "spawn_position",
 ]]
-position = Vector2( 88, 104 )
+position = Vector2( 88, 105 )
 script = ExtResource( 9 )
 
 [node name="ItemSpawnPoint2" type="Position2D" parent="SpawnPositions" groups=[

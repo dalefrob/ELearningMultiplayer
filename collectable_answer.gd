@@ -11,12 +11,13 @@ func set_safe(value):
 func get_safe() -> bool:
 	return safe
 
+var spawn_point_id := -1
 var active = true
 var original_y
 var tick_offset
 
-signal touched_answer(answer)
-signal expired
+signal touched_answer(node)
+signal expired(node)
 
 var alpha := 1.0
 
@@ -35,8 +36,10 @@ func _process(_delta):
 		alpha -= 0.001
 		if alpha <= 0:
 			active = false
-			emit_signal("expired", text)
-			queue_free()
+			emit_signal("expired", self)
+
+func get_spawn_point():
+	return get_parent()
 
 # ---- Click Event Code ---- #
 #func _input_event(viewport, event, shape_idx):
@@ -54,7 +57,6 @@ func _on_CollectibleWord_body_entered(body):
 		return
 	if body.is_in_group("player"):
 		active = false
-		emit_signal("touched_answer", self)
 		# visual queue
 		$Sprite.visible = false
 		# show correctness locally only
@@ -63,9 +65,8 @@ func _on_CollectibleWord_body_entered(body):
 				$Label.add_color_override("font_color", Color(1,0,0,1))
 			else:
 				$Label.add_color_override("font_color", Color(0,1,0,1))
-			# delete after a sec
-			yield(get_tree().create_timer(1.0), "timeout")
-			queue_free()
+			
+			emit_signal("touched_answer", self, body)
 		else:
 			# delete straight away
 			queue_free()
