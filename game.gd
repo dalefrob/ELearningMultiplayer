@@ -19,7 +19,8 @@ onready var gameover_panel = $GameUI/GameOverPanel
 
 signal on_leave_game
 
-var time_left := 60
+var init_time_limit = 20
+var time_left = init_time_limit
 var my_score := 0
 
 onready var player_scene = preload("res://Scenes/Player.tscn")
@@ -29,7 +30,7 @@ func _ready():
 	pass
 
 func reset_game():
-	set_timeleft(60)
+	set_timeleft(init_time_limit)
 	# destroy existing entities
 	var entities = get_tree().get_nodes_in_group("entities")
 	for e in entities:

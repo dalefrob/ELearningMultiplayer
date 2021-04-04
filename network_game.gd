@@ -23,26 +23,24 @@ func _ready():
 		i += 1
 
 func reset_game():
-	set_timeleft(60)
-	# destroy existing entities
-	var entities = get_tree().get_nodes_in_group("entities")
-	for e in entities:
-		e.queue_free()
-	# create proc level?
-
+	.reset_game() # call base reset game
+	# set up players again
 
 func set_timeleft(amount):
-	time_left = amount
+	.set_timeleft(amount)
 	if time_left <= 0:
 		time_left = 0
 		rpc("end_round")
-	time_label.text = "Time Left: " + str(time_left)
 
 # END OF ROUND ----------------------------
 var round_end_scores = {}
 remotesync func end_round():
 	# stop all timers on each player
 	$Timer.stop()
+	# delete all words
+	for answer in get_tree().get_nodes_in_group("answer"):
+		answer.active = false
+		answer.queue_free()
 	print("Round ended.")
 	round_end_scores.clear()
 	rpc("communicate_score", my_score)
@@ -115,8 +113,7 @@ master func ask_question():
 			rpc("spawn_answer", a, ips_index, true)
 		else:
 			# we didn't get an open position, what to do here??
-			print("Can't spawn '" + a + "', no spawn points left./n")
-			pass
+			print("Can't spawn '" + a + "', no spawn points left.\n")
 	rpc("show_question_instructions")
 
 sync var question_instruction
@@ -129,17 +126,12 @@ func find_open_spawnpoint_index() -> int:
 		if !item_spawn_positions[index].has_item():
 			return index
 	return -1
-	# iterate values in dictionary until an unoccupied node comes up
-#	for sp_tuple in item_spawn_positions:
-#		if sp_tuple["occupied"] == false:
-#			# we found an open position, so prepare it and break the loop
-#			# the server chooses a position
-#			var spawn_node = sp_tuple["spawn_node"]
-#			sp_tuple["occupied"] = true
-#			return spawn_node
-#	return null
+
 
 master func pre_spawn_answer():
+	if time_left <= 1:
+		# don't bother spawning, there's no time left.
+		return
 	var ips_index = find_open_spawnpoint_index()
 	if ips_index > -1:
 		# spawn a collectible at the same spawn point for each player
