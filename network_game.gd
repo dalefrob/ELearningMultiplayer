@@ -57,9 +57,9 @@ remote func communicate_score(sender_score):
 
 func show_scores():
 	roundover_panel.show()
-	$Canvas/RoundOverPanel/PlayerScores.add_item(Multiplayer.local_info.name + " " + str(my_score))
+	$GameUI/RoundOverPanel/PlayerScores.add_item(Multiplayer.local_info.name + " " + str(my_score))
 	for s in round_end_scores.keys():
-		$Canvas/RoundOverPanel/PlayerScores.add_item(s + " " + str(round_end_scores[s]))
+		$GameUI/RoundOverPanel/PlayerScores.add_item(s + " " + str(round_end_scores[s]))
 # -------------------------------------------
 
 # START OF GAME -----------------------------
@@ -98,7 +98,8 @@ remotesync func start_network_game():
 master func ask_question():
 	# get the question for the question manager
 	var q_data_dictionary = question_manager.get_current_question_data()
-	question_text.bbcode_text = q_data_dictionary["question_bbtext"]
+	rset("question_instruction", q_data_dictionary["question_bbtext"])
+	question_text.bbcode_text = question_instruction
 	# get the answers from the question manager
 	var answers = q_data_dictionary["correct_answers"] as Array
 	var bogus = q_data_dictionary["bogus_answers"]
@@ -116,6 +117,11 @@ master func ask_question():
 			# we didn't get an open position, what to do here??
 			print("Can't spawn '" + a + "', no spawn points left./n")
 			pass
+	rpc("show_question_instructions")
+
+sync var question_instruction
+remotesync func show_question_instructions():
+	question_text.bbcode_text = question_instruction # ---- TEST SYNCVAR
 
 # finds an open spawnpoint node and returns it
 func find_open_spawnpoint_index() -> int:
@@ -137,7 +143,10 @@ master func pre_spawn_answer():
 	var ips_index = find_open_spawnpoint_index()
 	if ips_index > -1:
 		# spawn a collectible at the same spawn point for each player
-		rpc("spawn_answer", "test", ips_index, true)
+		var q_data_dictionary = question_manager.get_current_question_data()
+		var answers = q_data_dictionary["correct_answers"] as Array
+		var a = answers[randi() % answers.size()]
+		rpc("spawn_answer", a, ips_index, true)
 
 # called from the server, but runs on every machine because of remotesync
 remotesync func spawn_answer(answer : String, ips_index : int, is_safe : bool):
@@ -159,9 +168,7 @@ func _on_answer_expired(calling_answer_item):
 	if get_tree().is_network_server():
 		# wait a bit before respawning
 		yield(get_tree().create_timer(rand_range(1,3)), "timeout")
-		var ips_index = find_open_spawnpoint_index()
-		if ips_index > -1 && was_safe:
-			rpc("spawn_answer", expired_text, ips_index, true)
+		rpc_id(1, "pre_spawn_answer")
 
 
 func _on_touched_answer(calling_answer_item : CollectableAnswer, toucher):
@@ -169,9 +176,7 @@ func _on_touched_answer(calling_answer_item : CollectableAnswer, toucher):
 		add_score(100)
 	else:
 		add_score(-50)
-	# wait a bit
-	yield(get_tree().create_timer(rand_range(1,3)), "timeout")
-	calling_answer_item.queue_free()
+	yield(get_tree().create_timer(rand_range(3,5)), "timeout")
 	# ask the server to prepare another answer to spawn
 	rpc_id(1, "pre_spawn_answer")
 

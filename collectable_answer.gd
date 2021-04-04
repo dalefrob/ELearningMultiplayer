@@ -67,6 +67,9 @@ func _on_CollectibleWord_body_entered(body):
 				$Label.add_color_override("font_color", Color(0,1,0,1))
 			
 			emit_signal("touched_answer", self, body)
+			# wait a bit, then destroy it
+			yield(get_tree().create_timer(1), "timeout")
+			queue_free()
 		else:
 			# delete straight away
 			queue_free()

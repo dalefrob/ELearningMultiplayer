@@ -18,10 +18,13 @@ var dead = false
 var speed = 80.0
 var hitstun = false
 var velocity = Vector2.ZERO
-var grounded = false
+var jumping := false
+var grounded := false
+var on_ladder := false
 
 signal player_died
 
+onready var tilemap = get_node('/root/Game/TileMap')    #get_parent().get_node("TileMap")
 onready var anim_player = $AnimationPlayer
 
 func set_tag(tag):
@@ -47,13 +50,28 @@ func _physics_process(_delta):
 	if !is_network_master():
 		return
 	
-	if is_on_floor() && !hitstun && !dead:
+	if (is_on_floor() || on_ladder)&& !hitstun && !dead:
+		jumping = false
 		velocity.y = 0
-		if Input.is_action_pressed("jump"):
+		if Input.is_action_pressed("jump") && !jumping:
+			jumping = true
 			velocity.y = -JUMPFORCE
 	
+	# check for ladder
+	if not tilemap == null:
+		var map_pos = tilemap.world_to_map(position)
+		var id = tilemap.get_cellv(map_pos)
+		if id > -1:
+			if tilemap.get_tileset().tile_get_name(id) == "ladder":
+				on_ladder = true
+			else:
+				on_ladder = false
+		else:
+			on_ladder = false
+	
 	# apply gravity and fall limit
-	velocity.y += GRAVITY
+	if !on_ladder:
+		velocity.y += GRAVITY
 	if velocity.y > MAXFALLSPEED:
 		velocity.y = MAXFALLSPEED
 	
@@ -61,6 +79,12 @@ func _physics_process(_delta):
 	velocity.x = clamp(velocity.x, -ACCEL, ACCEL)
 	
 	if !hitstun:
+		if Input.is_action_pressed("climb_ladder") && !dead:
+			if on_ladder:
+				velocity.y = -ACCEL 
+		elif Input.is_action_pressed("descend_ladder")&& !dead:
+			if on_ladder:
+				velocity.y = ACCEL 
 		if Input.is_action_pressed("move_right") && !dead:
 			velocity.x += ACCEL
 			$Sprite.flip_h = false
@@ -78,11 +102,13 @@ func _physics_process(_delta):
 		velocity.y = 0
 
 puppet func sync_position(_position):
+	var last_pos = position
 	if position.x < _position.x:
 		$Sprite.flip_h = false
 	elif position.x > _position.x:
 		$Sprite.flip_h = true
-	position = _position
+	# smoothly move towards the position it needs to be at. - Maybe theres a way to adjust the speed based on ping?
+	position = position.move_toward(_position, 8)
 
 func take_damage(amount = 1, knockback_velocity = Vector2.ZERO):
 	flicker()
