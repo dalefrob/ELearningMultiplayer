@@ -20,6 +20,7 @@ var hitstun = false
 var velocity = Vector2.ZERO
 var jumping := false
 var grounded := false
+var over_ladder := false 
 var on_ladder := false
 
 signal player_died
@@ -55,6 +56,7 @@ func _physics_process(_delta):
 		velocity.y = 0
 		if Input.is_action_pressed("jump") && !jumping:
 			jumping = true
+			on_ladder = false
 			velocity.y = -JUMPFORCE
 	
 	# check for ladder
@@ -63,10 +65,12 @@ func _physics_process(_delta):
 		var id = tilemap.get_cellv(map_pos)
 		if id > -1:
 			if tilemap.get_tileset().tile_get_name(id) == "ladder":
-				on_ladder = true
+				over_ladder = true
 			else:
+				over_ladder = false
 				on_ladder = false
 		else:
+			over_ladder = false
 			on_ladder = false
 	
 	# apply gravity and fall limit
@@ -81,10 +85,14 @@ func _physics_process(_delta):
 	if !hitstun:
 		if Input.is_action_pressed("climb_ladder") && !dead:
 			if on_ladder:
-				velocity.y = -ACCEL 
+				velocity.y = -ACCEL
+			elif over_ladder:
+				on_ladder = true 
 		elif Input.is_action_pressed("descend_ladder")&& !dead:
 			if on_ladder:
 				velocity.y = ACCEL 
+			elif over_ladder:
+				on_ladder = true
 		if Input.is_action_pressed("move_right") && !dead:
 			velocity.x += ACCEL
 			$Sprite.flip_h = false

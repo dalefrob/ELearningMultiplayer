@@ -31,7 +31,9 @@ font_data = ExtResource( 7 )
 [node name="Game" type="Node2D"]
 script = ExtResource( 3 )
 
-[node name="Timer" type="Timer" parent="."]
+[node name="QuestionRoundTimer" type="Timer" parent="."]
+wait_time = 15.0
+one_shot = true
 
 [node name="QuestionManager" type="Node" parent="."]
 script = ExtResource( 4 )
@@ -377,7 +379,7 @@ position = Vector2( 264, 248 )
 [node name="LadderPiece" type="Sprite" parent="."]
 position = Vector2( -24, 248 )
 texture = ExtResource( 13 )
-[connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]
+[connection signal="timeout" from="QuestionRoundTimer" to="." method="on_question_timer_timeout"]
 [connection signal="body_entered" from="MapObjects/Spike" to="MapObjects/Spike" method="_on_Spike_body_entered"]
 [connection signal="body_entered" from="MapObjects/Spike2" to="MapObjects/Spike2" method="_on_Spike_body_entered"]
 [connection signal="pressed" from="GameUI/TopCont/MenuButton" to="GameUI" method="_on_MenuButton_pressed"]

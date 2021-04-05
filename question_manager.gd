@@ -6,21 +6,27 @@ class_name QuestionManager
 var multiple_choice_qns : Array
 
 export var max_questions = 10
-var current_question_id = -1 #ensure we start asking from position 0
+var question_id = 0 #ensure we start asking from position 0
 
-# test question pool
-var test_question = "[center]Which words are verbs?[/center]"
-var test_answer_pool = ["coded", "scare", "threw", "fished", "was", "driving"]
-var test_bogus_pool = ["scary", "happiness", "ghost", "you", "best"]
-
-var current_question_data = {
-	"question_bbtext": test_question,
-	"correct_answers": test_answer_pool,
-	"bogus_answers": test_bogus_pool
+var question_data = {
+	0: {
+		"instructions" : "[center]Collect the verbs![/center]",
+		"answers" : ["coded", "scare", "threw", "fished", "was", "driving"],
+		"bogus_answers" : ["scary", "happiness", "ghost", "you", "best"]
+	},
+	1: {
+		"instructions" : "[center]Collect the superlative adjectives![/center]",
+		"answers" : ["biggest", "grandest", "most beautiful", "fastest", "most expensive", "scariest"],
+		"bogus_answers" : ["more delicious", "slower", "greener", "runner", "builder"]
+	},
 }
 
 func get_current_question_data():
-	return current_question_data
+	return question_data[question_id]
 
-func _ready():
-	pass
+func get_next_question():
+	if question_id + 1 >= question_data.size():
+		question_id = 0
+	else: 
+		question_id += 1
+	return get_current_question_data()

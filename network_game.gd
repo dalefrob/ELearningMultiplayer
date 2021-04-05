@@ -8,11 +8,12 @@ onready var collectible_word_scene = preload("res://Scenes/CollectibleWord.tscn"
 
 # generate a random seed for the game
 var rng = RandomNumberGenerator.new()
+var current_questions = 1
+export var max_questions = 2
+onready var question_rotation_timer = $QuestionRoundTimer
 
 var player_spawn_positions = []
-var item_spawn_positions = {}
-# inside the array is a tuple 
-# [0] { spawn_node = 'node obj', occupied = bool }
+var item_spawn_positions = {} # [0] { spawn_node = 'node obj', occupied = bool } # Does this need to be a dictionary?
 
 func _ready():
 	if !get_tree().is_network_server():
@@ -25,21 +26,18 @@ func _ready():
 		elif "PlayerSpawnPoint" in sp.name:
 			player_spawn_positions.append(sp)
 
+func _process(delta):
+	time_label.text = "Time Left: " + str("%.1f" % question_rotation_timer.time_left)
+
 func reset_game():
 	.reset_game() # call base reset game
 	# set up players again
-
-func set_timeleft(amount):
-	.set_timeleft(amount)
-	if time_left <= 0:
-		time_left = 0
-		rpc("end_round")
 
 # END OF ROUND ----------------------------
 var round_end_scores = {}
 remotesync func end_round():
 	# stop all timers on each player
-	$Timer.stop()
+	question_rotation_timer.stop()
 	# delete all words
 	for answer in get_tree().get_nodes_in_group("answer"):
 		answer.active = false
@@ -99,36 +97,37 @@ remotesync func start_network_game():
 	# set up player events
 	
 	# start the timer on each player - only the server one matters though
-	$Timer.start()
+	question_rotation_timer.start()
 	if get_tree().is_network_server():
+		ask_question()
+
+master func next_question():
+	current_questions += 1
+	if current_questions > max_questions:
+		end_round()
+	else:
+		question_manager.get_next_question()
 		ask_question()
 
 master func ask_question():
 	# get the question for the question manager
-	var q_data_dictionary = question_manager.get_current_question_data()
-	rset("question_instruction", q_data_dictionary["question_bbtext"])
-	question_text.bbcode_text = question_instruction
+	var q_data = question_manager.get_current_question_data()
+	rset("question_instructions", q_data["instructions"])
+	question_text.bbcode_text = question_instructions
 	# get the answers from the question manager
-	var answers = q_data_dictionary["correct_answers"] as Array
-	var bogus = q_data_dictionary["bogus_answers"]
+	var answers = q_data["answers"] as Array
+	var bogus_answers = q_data["bogus_answers"] as Array
 	# randomize answer order 
 	# this is done on server, so the clients should reflect this randomization
 	answers.shuffle()
-	
-	for a in answers:
-		# find an open spawn point
-		var ips_index = find_open_spawnpoint_index()
-		if ips_index > -1:
-			# spawn a collectible at the same spawn point for each player
-			rpc("spawn_answer", a, ips_index, true)
-		else:
-			# we didn't get an open position, what to do here??
-			print("Can't spawn '" + a + "', no spawn points left.\n")
 	rpc("show_question_instructions")
+	question_rotation_timer.start()
+	for i in range(item_spawn_positions.size()):
+		pre_spawn_answer()
 
-sync var question_instruction
+sync var question_instructions
 remotesync func show_question_instructions():
-	question_text.bbcode_text = question_instruction # ---- TEST SYNCVAR
+	question_text.bbcode_text = question_instructions # ---- TEST SYNCVAR
 
 # finds an open spawnpoint node and returns it
 func find_open_spawnpoint_index() -> int:
@@ -137,18 +136,29 @@ func find_open_spawnpoint_index() -> int:
 			return index
 	return -1
 
-
 master func pre_spawn_answer():
-	if time_left <= 1:
+	if question_rotation_timer.time_left <= 2:
 		# don't bother spawning, there's no time left.
 		return
+	# get the data
+	var q_data = question_manager.get_current_question_data()
+	var answers = q_data["answers"] as Array
+	var bogus_answers = q_data["bogus_answers"] as Array
+	
+	var is_safe = true
+	var answer_text = answers[randi() % answers.size()]
+	# change to make it bogus
+	if rng.randf() < 0.3:
+		answer_text = bogus_answers[randi() % bogus_answers.size()]
+		is_safe = false
+	# find an open spawn point
 	var ips_index = find_open_spawnpoint_index()
 	if ips_index > -1:
 		# spawn a collectible at the same spawn point for each player
-		var q_data_dictionary = question_manager.get_current_question_data()
-		var answers = q_data_dictionary["correct_answers"] as Array
-		var a = answers[randi() % answers.size()]
-		rpc("spawn_answer", a, ips_index, true)
+		rpc("spawn_answer", answer_text, ips_index, is_safe)
+	else:
+		# we didn't get an open position, what to do here??
+		print("Can't spawn '" + answer_text + "', no spawn points left.\n")
 
 # called from the server, but runs on every machine because of remotesync
 remotesync func spawn_answer(answer : String, ips_index : int, is_safe : bool):
@@ -185,7 +195,7 @@ func _on_touched_answer(calling_answer_item : CollectableAnswer, toucher):
 # -------------------------------------------
 
 func _on_player_died():
-	$Timer.stop()
+	question_rotation_timer.stop()
 	$GameUI/GameOverPanel/ScoreLabel.text = "Your score was: " + str(my_score)
 	gameover_panel.show()
 
@@ -193,10 +203,6 @@ func _on_player_died():
 func add_score(amount):
 	my_score += amount
 	score_label.text = "Score: " + str(my_score)
-
-
-func _on_Timer_timeout():
-	set_timeleft(time_left - 1)
 
 
 func _on_StartButton_button_up():
@@ -209,6 +215,10 @@ func _on_TryAgainButton_button_up():
 	gameover_panel.hide()
 	reset_game()
 	start_panel.show()
+
+
+func on_question_timer_timeout():
+	next_question()
 
 
 func _leave_game():
