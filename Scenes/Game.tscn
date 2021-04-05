@@ -68,6 +68,12 @@ script = ExtResource( 9 )
 position = Vector2( 440, 56 )
 script = ExtResource( 9 )
 
+[node name="PlayerSpawnPoint" type="Position2D" parent="SpawnPositions"]
+position = Vector2( 232, 248 )
+
+[node name="PlayerSpawnPoint2" type="Position2D" parent="SpawnPositions"]
+position = Vector2( 296, 72 )
+
 [node name="Background" type="TileMap" parent="."]
 tile_set = ExtResource( 8 )
 cell_size = Vector2( 16, 16 )

@@ -9,6 +9,7 @@ onready var collectible_word_scene = preload("res://Scenes/CollectibleWord.tscn"
 # generate a random seed for the game
 var rng = RandomNumberGenerator.new()
 
+var player_spawn_positions = []
 var item_spawn_positions = {}
 # inside the array is a tuple 
 # [0] { spawn_node = 'node obj', occupied = bool }
@@ -16,11 +17,13 @@ var item_spawn_positions = {}
 func _ready():
 	if !get_tree().is_network_server():
 		start_panel.hide()
-	#print(globals.data["categories"])
 	var i = 0
-	for p in $SpawnPositions.get_children():
-		item_spawn_positions[i] = p as ItemSpawnPoint
-		i += 1
+	for sp in $SpawnPositions.get_children():
+		if "ItemSpawnPoint" in sp.name:
+			item_spawn_positions[i] = sp as ItemSpawnPoint
+			i += 1
+		elif "PlayerSpawnPoint" in sp.name:
+			player_spawn_positions.append(sp)
 
 func reset_game():
 	.reset_game() # call base reset game
@@ -62,27 +65,33 @@ func show_scores():
 
 # START OF GAME -----------------------------
 func preconfig_network_game():
-	rpc("spawn_players")
+	rpc("spawn_all_players")
 	rpc("start_network_game")
 
-remotesync func spawn_players():
+# return the position of a spawn point fair to the player
+func get_open_spawn_point() -> Vector2:
+	return player_spawn_positions[randi() % player_spawn_positions.size()].position
+
+# spawn ALL the players at the same time
+# only the network master should be able to do this!
+master func spawn_all_players():
 	var selfPeerID = get_tree().get_network_unique_id()
 	# Load my player
-	var my_player = preload("res://Scenes/NetworkPlayer.tscn").instance()
-	my_player.set_name(str(selfPeerID))
-	my_player.set_network_master(selfPeerID) # Will be explained later
-	get_node("/root/Game/Players").add_child(my_player)
-	my_player.position = Vector2(64,64)
-
+	rpc("spawn_player", selfPeerID)
 	# Load other players
-	for p in Multiplayer.peer_info:
-		var player = preload("res://Scenes/NetworkPlayer.tscn").instance()
-		player.set_name(str(p))
-		player.set_network_master(p) # Will be explained later
-		player.set_tag(Multiplayer.peer_info[p].name)
-		get_node("/root/Game/Players").add_child(player)
-		player.position = Vector2(64,64)
+	for peer_ID in Multiplayer.peer_info:
+		rpc("spawn_player", peer_ID)
 
+# respawn a player by player info - could even be my player!
+remotesync func spawn_player(peer_ID):
+	var player = preload("res://Scenes/NetworkPlayer.tscn").instance()
+	player.set_name(str(peer_ID))
+	player.set_network_master(peer_ID) # Will be explained later
+	# we're spawning another player, so set their tag displayed above their head
+	if peer_ID != get_tree().get_network_unique_id():
+		player.set_tag(Multiplayer.peer_info[peer_ID].name)
+	get_node("/root/Game/Players").add_child(player)
+	player.position = get_open_spawn_point()
 
 # called from the server but run by all
 remotesync func start_network_game():
