@@ -77,13 +77,14 @@ func get_open_spawn_point() -> Vector2:
 master func spawn_all_players():
 	var selfPeerID = get_tree().get_network_unique_id()
 	# Load my player
-	rpc("spawn_player", selfPeerID)
+	rpc("spawn_player", selfPeerID, get_open_spawn_point())
 	# Load other players
 	for peer_ID in Multiplayer.peer_info:
-		rpc("spawn_player", peer_ID)
+		# make sure the spawn point is pre-chosen on the server to prevent desync or flying
+		rpc("spawn_player", peer_ID, get_open_spawn_point())
 
 # respawn a player by player info - could even be my player!
-remotesync func spawn_player(peer_ID):
+remotesync func spawn_player(peer_ID, spawn_position : Vector2):
 	var player = preload("res://Scenes/NetworkPlayer.tscn").instance()
 	player.set_name(str(peer_ID))
 	player.set_network_master(peer_ID) # Will be explained later
@@ -91,7 +92,7 @@ remotesync func spawn_player(peer_ID):
 	if peer_ID != get_tree().get_network_unique_id():
 		player.set_tag(Multiplayer.peer_info[peer_ID].name)
 	get_node("/root/Game/Players").add_child(player)
-	player.position = get_open_spawn_point()
+	player.position = spawn_position
 
 # called from the server but run by all
 remotesync func start_network_game():
