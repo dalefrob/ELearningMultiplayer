@@ -1,7 +1,7 @@
 extends "game.gd"
 
 # Multiplayer word collection game
-
+onready var player_camera = $PlayerCamera
 onready var roundover_panel = $GameUI/RoundOverPanel
 onready var map_objects = get_node("MapObjects")
 onready var collectible_word_scene = preload("res://Scenes/CollectibleWord.tscn")
@@ -89,6 +89,11 @@ remotesync func spawn_player(peer_ID, spawn_position : Vector2):
 	# we're spawning another player, so set their tag displayed above their head
 	if peer_ID != get_tree().get_network_unique_id():
 		player.set_tag(Multiplayer.peer_info[peer_ID].name)
+	else:
+		# its me, set the camera
+		player_camera.get_parent().remove_child(player_camera)
+		player.add_child(player_camera)
+		player_camera.current = true
 	get_node("/root/Game/Players").add_child(player)
 	player.position = spawn_position
 

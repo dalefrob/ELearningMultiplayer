@@ -25,11 +25,21 @@ size = 11
 font_data = ExtResource( 7 )
 
 [sub_resource type="DynamicFont" id=4]
-size = 11
+size = 22
 font_data = ExtResource( 7 )
 
 [node name="Game" type="Node2D"]
 script = ExtResource( 3 )
+
+[node name="PlayerCamera" type="Camera2D" parent="."]
+current = true
+zoom = Vector2( 0.5, 0.5 )
+limit_left = 0
+limit_top = 0
+limit_right = 1024
+limit_bottom = 600
+drag_margin_h_enabled = true
+drag_margin_v_enabled = true
 
 [node name="QuestionRoundTimer" type="Timer" parent="."]
 wait_time = 15.0
@@ -129,6 +139,18 @@ texture = ExtResource( 5 )
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MapObjects/Door"]
 shape = SubResource( 2 )
 
+[node name="HeartPickup" parent="." instance=ExtResource( 6 )]
+position = Vector2( 216, 72 )
+
+[node name="PlayerStartPosition" type="Position2D" parent="."]
+position = Vector2( 264, 248 )
+
+[node name="Players" type="Node" parent="."]
+
+[node name="LadderPiece" type="Sprite" parent="."]
+position = Vector2( -24, 248 )
+texture = ExtResource( 13 )
+
 [node name="GameUI" type="CanvasLayer" parent="."]
 script = ExtResource( 12 )
 
@@ -216,15 +238,15 @@ __meta__ = {
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -48.0
+margin_top = -88.0
 grow_vertical = 0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="ColorRect" type="ColorRect" parent="GameUI/BottomCont"]
-margin_right = 480.0
-margin_bottom = 48.0
+margin_right = 1024.0
+margin_bottom = 88.0
 color = Color( 0, 0, 0, 1 )
 
 [node name="QuestionText" type="RichTextLabel" parent="GameUI/BottomCont/ColorRect"]
@@ -234,8 +256,8 @@ grow_horizontal = 2
 rect_clip_content = false
 custom_fonts/normal_font = SubResource( 4 )
 bbcode_enabled = true
-bbcode_text = "[center]This is a [b]question[/b] for you to answer!
-[color=yellow]Here[/color] it is on the [b]second line[/b]."
+bbcode_text = "[center]This is a question for you to answer!
+Here it is on the second line."
 text = "This is a question for you to answer!
 Here it is on the second line."
 scroll_active = false
@@ -367,18 +389,6 @@ script = ExtResource( 11 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="HeartPickup" parent="." instance=ExtResource( 6 )]
-position = Vector2( 216, 72 )
-
-[node name="PlayerStartPosition" type="Position2D" parent="."]
-position = Vector2( 264, 248 )
-
-[node name="Players" type="Node" parent="."]
-
-[node name="LadderPiece" type="Sprite" parent="."]
-position = Vector2( -24, 248 )
-texture = ExtResource( 13 )
 [connection signal="timeout" from="QuestionRoundTimer" to="." method="on_question_timer_timeout"]
 [connection signal="body_entered" from="MapObjects/Spike" to="MapObjects/Spike" method="_on_Spike_body_entered"]
 [connection signal="body_entered" from="MapObjects/Spike2" to="MapObjects/Spike2" method="_on_Spike_body_entered"]
